@@ -28,7 +28,7 @@ class TypeclassSpec extends Spec with ShouldMatchers {
       Traverse[List].traverse(List(1, 2, 3))(i => some(i)) should equal(Some(List(1, 2, 3)))
     }
 
-    it("using ops classes under syntax") {
+    it("using syntax layer gives better type inference") {
 
       // using the syntax layer gives better type inference
 
@@ -56,6 +56,19 @@ class TypeclassSpec extends Spec with ShouldMatchers {
 
       import syntax.traverse._
       List(some(1), some(2), some(3)).sequence should equal(Some(List(1, 2, 3)))
+    }
+
+    it("playing around with Liskov") {
+      import std.list._
+      import syntax.bind._
+
+      class Base(i: Int)
+      case class Derived(j: Int, s: String) extends Base(j)
+
+      // set up the Liskov instance
+      implicitly[Derived <:< Base].apply(Derived(0, "")): Base
+
+      List(List(Derived(0, "a"), Derived(1, "b"))).join[Base] should equal(List(Derived(0, "a"), Derived(1, "b")))
     }
   }
 }
