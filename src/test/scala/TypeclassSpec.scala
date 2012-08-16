@@ -70,6 +70,17 @@ class TypeclassSpec extends Spec with ShouldMatchers {
 
       List(List(Derived(0, "a"), Derived(1, "b"))).join[Base] should equal(List(Derived(0, "a"), Derived(1, "b")))
     }
+
+    it("playing around with bind and join") {
+      import std.option._
+      import syntax.monad._
+
+      // verifying alternative defn of monad using join
+      // law : m >>= f = join(fmap f m)
+      val f: Int => Option[Int] = (i => if (i == 0) some(0) else none)
+      val o1 = some(0)
+      (o1 >>= f) should equal((o1 map f).join)
+    }
   }
 }
 

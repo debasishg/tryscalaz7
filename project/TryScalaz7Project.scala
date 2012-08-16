@@ -20,7 +20,8 @@ object TryScalaz7Project extends Build
       "junit"              % "junit"            % "4.8.1"            % "test",
       "org.scalatest"      % "scalatest_2.9.1"  % "1.6.1"            % "test",
       "org.scalacheck"     %% "scalacheck"      % "1.9"              % "test",
-      "org.scalaz"         % "scalaz-core_2.9.2" % "7.0.0-M1"),
+      "org.scalaz"         % "scalaz-core_2.9.2" % "7.0.0-M2",
+      "org.scalaz"         % "scalaz-effect_2.9.2" % "7.0.0-M2"),
 
 
     parallelExecution in Test := false,
@@ -43,7 +44,7 @@ object TryScalaz7Project extends Build
         </license>
       </licenses>
       <scm>
-        <url>git@github.com:debasishg/scala-redis.git</url>
+        <url>git@github.com:debasishg/tryscalaz7.git</url>
         <connection>scm:git:git@github.com:debasishg/tryscalaz7.git</connection>
       </scm>
       <developers>
