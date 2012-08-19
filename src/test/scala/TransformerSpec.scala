@@ -99,5 +99,25 @@ class TransformerSpec extends Spec with ShouldMatchers {
       val ad = makePersonF(12) map getAddress
       ad.swap.getOrElse(NonEmptyList[String]("")).unsafePerformIO should equal(NonEmptyList("last name needs to be non-empty", "age must be > 0"))
     }
+
+    it("moar transformers") {
+      import scalaz.OptionT
+      import OptionT._
+      
+      type EIO[+A] = EitherT[IO, NonEmptyList[String], A]
+
+      def makePerson(id: Int) = 
+        eitherT[IO, NonEmptyList[String], Person]((validLastName("ghosh").toValidationNEL |@|
+          validAge(25).toValidationNEL) {(l, a) => Person("debasish", l, a)}.disjunction.point[IO])
+
+      // using type alias
+      val a: EIO[Option[Address]] = makePerson(12) map getAddress
+
+      // wrap in a transformer
+      val ad: OptionT[EIO, Address] = optionT[EIO](a)
+
+      // we can now write combinators like the following
+      ad map (_.city)
+    }
   }
 }
