@@ -15,7 +15,7 @@ class TransformerSpec extends Spec with ShouldMatchers {
 
     it("using eitherT") {
 
-      // implementations of typeclasses a dn the functions are in std
+      // implementations of typeclasses and the functions are in std
       // can do selective import
 
       import Either._
@@ -36,6 +36,68 @@ class TransformerSpec extends Spec with ShouldMatchers {
       val f = eitherT[List, String, Int](List("debasish", "maulindu", "goutam", "kausik", "arun").map(\/.left(_)))
       val bmf = f.bimap(s => s ++ s, _ * 2)
       bmf.swap.toList should equal(List(List("debasishdebasish"), List("maulindumaulindu"), List("goutamgoutam"), List("kausikkausik"), List("arunarun")))
+    }
+  }
+
+  describe("monad transformer 2") {
+    import Scalaz._
+    import effect.IO
+    import effect.IO._
+    import Either._
+    import EitherT._
+
+    case class Person(lastName: String, firstName: String, age: Int)
+    case class Address(no: Int, street: String, zip: String, city: String)
+
+    // some validation functions
+    def validAge(age: Int): Validation[String, Int] =
+      if (age <= 0) "age must be > 0".failure
+      else if (age > 100) "age must be <= 100".failure
+      else age.success
+
+    def validLastName(l: String): Validation[String, String] =
+      if (l.isEmpty) "last name needs to be non-empty".failure
+      else l.success
+
+    // suppose we need to lookup the address in a hash map
+    // lookup may fail : hence Option
+    def getAddress(p: Person) =
+      Address(12, "Monroe Street", "95050", "Cupertino").some // .point[IO]
+
+    it("lack of composition without monad transformers") {
+
+      // without monad transformer
+      // uses an IO since in real life we will fetch it from database using the id
+      def makePerson(id: Int) = 
+        (validLastName("ghosh").toValidationNEL |@|
+          validAge(25).toValidationNEL) {(l, a) => Person("debasish", l, a)}.disjunction.point[IO]
+
+      // threatens to move off the right margin
+      val a = makePerson(12) map {pd =>
+        pd.map {p =>
+          getAddress(p)
+        }
+      }
+    }
+
+    it("monad transformers make monads compose") {
+      // using eitherT monad transfomer
+      // uses an IO since in real life we will fetch it from database using the id
+      def makePerson(id: Int) = 
+        eitherT[IO, NonEmptyList[String], Person]((validLastName("ghosh").toValidationNEL |@|
+          validAge(25).toValidationNEL) {(l, a) => Person("debasish", l, a)}.disjunction.point[IO])
+
+      // much neater compared to the last usage
+      val a = makePerson(12) map getAddress
+      a.getOrElse(None).unsafePerformIO should equal(Some(Address(12,"Monroe Street","95050","Cupertino")))
+
+      // failure case
+      def makePersonF(id: Int) = 
+        eitherT[IO, NonEmptyList[String], Person]((validLastName("").toValidationNEL |@|
+          validAge(0).toValidationNEL) {(l, a) => Person("debasish", l, a)}.disjunction.point[IO])
+
+      val ad = makePersonF(12) map getAddress
+      ad.swap.getOrElse(NonEmptyList[String]("")).unsafePerformIO should equal(NonEmptyList("last name needs to be non-empty", "age must be > 0"))
     }
   }
 }
