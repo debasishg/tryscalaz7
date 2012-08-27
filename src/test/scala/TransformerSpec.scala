@@ -1,13 +1,13 @@
 package tryscalaz7
 
 
-import org.scalatest.Spec
+import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.junit.JUnitRunner
 import org.junit.runner.RunWith
 
 @RunWith(classOf[JUnitRunner])
-class TransformerSpec extends Spec with ShouldMatchers {
+class TransformerSpec extends FunSpec with ShouldMatchers {
 
   import scalaz._
 
@@ -65,6 +65,8 @@ class TransformerSpec extends Spec with ShouldMatchers {
       Address(12, "Monroe Street", "95050", "Cupertino").some // .point[IO]
 
     it("lack of composition without monad transformers") {
+
+      import syntax.apply._
 
       // without monad transformer
       // uses an IO since in real life we will fetch it from database using the id

@@ -8,7 +8,7 @@ object TryScalaz7Project extends Build
   lazy val commonSettings: Seq[Setting[_]] = Seq(
     organization := "net.debasishg",
     version := "0.0.1",
-    scalaVersion := "2.9.2",
+    scalaVersion := "2.10.0-M7",
     scalacOptions ++= Seq("-deprecation", "-unchecked")
   )
 
@@ -18,10 +18,10 @@ object TryScalaz7Project extends Build
     libraryDependencies ++= Seq(
       "commons-pool"       % "commons-pool"     % "1.6",
       "junit"              % "junit"            % "4.8.1"            % "test",
-      "org.scalatest"      % "scalatest_2.9.1"  % "1.6.1"            % "test",
-      "org.scalacheck"     %% "scalacheck"      % "1.9"              % "test",
-      "org.scalaz"         % "scalaz-core_2.9.2" % "7.0.0-M2",
-      "org.scalaz"         % "scalaz-effect_2.9.2" % "7.0.0-M2"),
+      "org.scalatest"      % "scalatest_2.10.0-M7"  % "1.9-2.10.0-M7-B1"            % "test",
+      // "org.scalacheck"     %% "scalacheck"      % "1.9"              % "test",
+      "org.scalaz"         % "scalaz-core_2.10.0-M6" % "7.0.0-M2",
+      "org.scalaz"         % "scalaz-effect_2.10.0-M6" % "7.0.0-M2"),
 
 
     parallelExecution in Test := false,

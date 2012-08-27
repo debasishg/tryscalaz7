@@ -1,13 +1,13 @@
 package tryscalaz7
 
 
-import org.scalatest.Spec
+import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.junit.JUnitRunner
 import org.junit.runner.RunWith
 
 @RunWith(classOf[JUnitRunner])
-class TypeclassSpec extends Spec with ShouldMatchers {
+class TypeclassSpec extends FunSpec with ShouldMatchers {
 
   import scalaz._
 
@@ -40,7 +40,7 @@ class TypeclassSpec extends Spec with ShouldMatchers {
       List(List(List(1), List(2))).join should equal(List(List(1), List(2)))
       List(List(List(1), List(2))).join.join should equal(List(1, 2))
 
-      import syntax.apply._
+      // import syntax.apply._
 
       // same example as above that uses ap directly
       List(1, 2, 3, 4) <*> List(((i: Int) => i * 2), (i: Int) => i * 3) should equal(List(2, 4, 6, 8, 3, 6, 9, 12))
@@ -50,7 +50,7 @@ class TypeclassSpec extends Spec with ShouldMatchers {
       import syntax.applicative._
       some(1).map2(some(2))(_ + _) should equal(some(3))
 
-      import syntax.monad._
+      // import syntax.monad._
       val o1 = some(0)
       (o1 >>= (x => if (x == 0) some(0) else none)) should equal(some(0))
 
