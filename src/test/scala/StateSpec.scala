@@ -80,23 +80,52 @@ class StateSpec extends FunSpec with ShouldMatchers {
 
   describe("state monad combinators") {
 
+    import scalaz.syntax.traverse._
+    import scalaz.std.list._
+    val initCache = Cache(Map.empty[String, Timestamped[FollowerStats]], 0, 0)
+
+    val listOfState: List[StateCache[FollowerStats]] =
+      List(followerStats("debasish"), // miss
+           followerStats("maulindu"), // miss
+           followerStats("indrajit"), // miss
+           followerStats("debasish"), // hit!
+           followerStats("maulindu")) // hit!
+
+    val stateOfList: StateCache[List[FollowerStats]] = listOfState.sequence[StateCache, FollowerStats]
+
     it("threading state through applicatives") {
-      import scalaz.syntax.traverse._
-      import scalaz.std.list._
-
-      val initCache = Cache(Map.empty[String, Timestamped[FollowerStats]], 0, 0)
-
-      val listOfState: List[StateCache[FollowerStats]] =
-        List(followerStats("debasish"), // miss
-             followerStats("maulindu"), // miss
-             followerStats("indrajit"), // miss
-             followerStats("debasish"), // hit!
-             followerStats("maulindu")) // hit!
-
-      val stateOfList: StateCache[List[FollowerStats]] = listOfState.sequence[StateCache, FollowerStats]
       val (s, a) = stateOfList.run(initCache)
       s.hits should equal(2)
       s.misses should equal(3)
+    }
+
+    it("evals and execs the State monad") {
+      // eval throws away the state and gets the final value
+      stateOfList.eval(initCache).size should equal(5)
+
+      // exec throws away the value and gets the state
+      val c = stateOfList.exec(initCache)
+      c.hits should equal(2)
+      c.misses should equal(3)
+    }
+
+    it("evals and execs the State monad with monoidal state") {
+
+      import scalaz.Monoid
+
+      implicit val CacheMonoid = new Monoid[Cache] {
+        override def zero = Cache(Map.empty, 0, 0)
+        override def append(a: Cache, b: =>Cache) =
+          Cache(a.stats ++ b.stats, a.hits + b.hits, a.misses + b.misses)
+      }
+
+      // eval throws away the state and gets the final value
+      stateOfList.evalZero.size should equal(5)
+
+      // exec throws away the value and gets the state
+      val c = stateOfList.execZero
+      c.hits should equal(2)
+      c.misses should equal(3)
     }
   }
 }
