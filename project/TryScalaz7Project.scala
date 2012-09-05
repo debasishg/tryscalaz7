@@ -9,7 +9,7 @@ object TryScalaz7Project extends Build
     organization := "net.debasishg",
     version := "0.0.1",
     scalaVersion := "2.10.0-M6",
-    scalacOptions ++= Seq("-deprecation", "-unchecked")
+    scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-language:higherKinds")
   )
 
   lazy val coreSettings = commonSettings ++ Seq(
