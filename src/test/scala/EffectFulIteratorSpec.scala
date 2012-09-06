@@ -21,11 +21,27 @@ class EffectfulIteratorSpec extends FunSpec with ShouldMatchers {
 
       def collect[T[_]:Traverse, A, B, S](f: A => B, t: T[A], g: S => S) =
         t.traverse[({type λ[x] = State[S,x]})#λ, B](a => State((s: S) => (g(s), f(a))))
-        // t.traverse[({type λ[x] = State[S,x]})#λ, B](a => state((s: S) => (g(s), f(a))))
 
       val loop = collect((a: Int) => 2 * a, List(10, 20, 30, 40), (i: Int) => i + 1)
       loop(0) should equal((4, List(20, 40, 60, 80)))   // (4,List(20, 40, 60, 80))
     } 
+
+    it("should collect using mapAccumLeft") {
+      def collect[A, B, S](f: A => B, g: S => S)(s: S, a: A) = (g(s), f(a))
+      List(10, 20, 30, 40).mapAccumLeft(
+        0, collect((a: Int) => 2 * a, (i: Int) => i + 1) _) should equal((4, List(20, 40, 60, 80)))
+    }
+
+    it("should collect using traverseS and runTraverseS combinators") {
+      def collect[A, B, S](f: A => B, g: S => S) = (a: A) => State((s: S) => (g(s), f(a)))
+
+      // traverseS
+      List(10, 20, 30, 40).traverseS(
+        collect((a: Int) => 2 * a, (i: Int) => i + 1)).run(0) should equal((4, List(20, 40, 60, 80)))
+
+      // runTraverseS
+      List(10, 20, 30, 40).runTraverseS(0)(collect((a: Int) => 2 * a, (i: Int) => i + 1)) should equal((4, List(20, 40, 60, 80)))
+    }
 
     it("should disperse") {
 
