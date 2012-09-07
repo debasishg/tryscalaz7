@@ -8,7 +8,7 @@ object TryScalaz7Project extends Build
   lazy val commonSettings: Seq[Setting[_]] = Seq(
     organization := "net.debasishg",
     version := "0.0.1",
-    scalaVersion := "2.10.0-M6",
+    scalaVersion := "2.10.0-M7",
     scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-language:higherKinds")
   )
 
@@ -16,10 +16,10 @@ object TryScalaz7Project extends Build
     name := "TryScalaz7",
 
     libraryDependencies ++= Seq(
-      "junit"              % "junit"            % "4.8.1"            % "test",
+      "junit"              % "junit"            % "4.10"            % "test",
       "org.scalatest"      % "scalatest_2.10.0-M7"  % "1.9-2.10.0-M7-B1"            % "test",
-      "org.scalaz"         % "scalaz-core_2.10.0-M6" % "7.0.0-M2",
-      "org.scalaz"         % "scalaz-effect_2.10.0-M6" % "7.0.0-M2"),
+      "org.scalaz"         % "scalaz-core_2.10.0-M7" % "7.0.0-M3",
+      "org.scalaz"         % "scalaz-effect_2.10.0-M7" % "7.0.0-M3"),
 
 
     parallelExecution in Test := false,

@@ -19,8 +19,11 @@ class TypeclassSpec extends FunSpec with ShouldMatchers {
       // can do selective import
 
       import std.option._, std.list._
+      import syntax.apply._
 
-      Apply[Option].map2(some(1), some(2))((a, b) => a + b) should equal(Some(3))
+      ^(some(1), some(2))(_ + _) should equal(some(3))
+      // Apply[Option].map2 deprecated in M3
+      // Apply[Option].map2(some(1), some(2))((a, b) => a + b) should equal(Some(3))
       Apply[List].ap(List(1,2,3,4))(List(((i: Int) => i * 2), ((i: Int) => i * 3))) should equal(List(2, 4, 6, 8, 3, 6, 9, 12))
 
       Traverse[List].sequence(List(some(1), some(2), some(3))) should equal(Some(List(1, 2, 3)))
@@ -48,7 +51,8 @@ class TypeclassSpec extends FunSpec with ShouldMatchers {
       // same example as above that uses Apply[Option].map2
       import std.option._
       import syntax.applicative._
-      some(1).map2(some(2))(_ + _) should equal(some(3))
+      // deprecated in M3
+      // some(1).map2(some(2))(_ + _) should equal(some(3))
 
       // import syntax.monad._
       val o1 = some(0)
