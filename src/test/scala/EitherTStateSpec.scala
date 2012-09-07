@@ -13,6 +13,7 @@ import Scalaz._
 // This is directly from Michael Pilquist's excellent presentation on Scalaz State Monad 
 // https://speakerdeck.com/u/mpilquist/p/scalaz-state-monad
 
+// explains an example where we mix EitherT and State monads
 object Financial {
   case class Order(no: String, instruments: List[String])
 
@@ -69,7 +70,7 @@ object Financial {
 }
 
 @RunWith(classOf[JUnitRunner])
-class StateTransformerSpec extends FunSpec with ShouldMatchers {
+class EitherTStateSpec extends FunSpec with ShouldMatchers {
 
   import Financial._
   import scalaz.syntax.traverse._
@@ -89,6 +90,25 @@ class StateTransformerSpec extends FunSpec with ShouldMatchers {
       val (s, v) = stateOfList run OrderCache(Map.empty[String, Order])
       s.orders.size should equal(3)
       v.toList.flatten.size should equal(4)
+    }
+
+    it("should work in failure case") {
+      getOrder("").swap.toList.eval(OrderCache(Map.empty[String, Order])).head should equal("Invalid order no")
+    }
+
+    it("should work in failure case with multiple getOrders") {
+      val listOfState: List[OrderCacheES[Order]] =
+        List(getOrder("100"),  // miss
+             getOrder("200"),  // miss
+             getOrder(""),     // should fail
+             getOrder("300"))  // miss
+
+      val stateOfList: OrderCacheES[List[Order]] =
+        listOfState.sequence[OrderCacheES, Order]
+      
+      val (s, v) = stateOfList run OrderCache(Map.empty[String, Order])
+      s.orders.size should equal(3)
+      v.swap.toList.head should equal("Invalid order no")
     }
   }
 }
