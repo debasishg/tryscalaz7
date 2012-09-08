@@ -122,4 +122,30 @@ class TransformerSpec extends FunSpec with ShouldMatchers {
       ad map (_.city)
     }
   }
+
+  describe("monad transformer 3") {
+    it("should have stacked effects") {
+      import scalaz._
+      import Scalaz._
+
+      // helpful aliases
+      type EitherTString[M[+_], +A] = EitherT[M, String, A]
+      type StateInt[+A] = State[Int, A]
+
+      // state monad
+      val incr: StateInt[Int] = State {s => (s + 1, s)}
+      incr.replicateM(10).evalZero should equal(List(0,1,2,3,4,5,6,7,8,9))
+
+      // stack with Free monad
+      import Free.Trampoline
+      incr.lift[Trampoline].replicateM(100000).evalZero.run.size should equal(100000)
+
+      import \/._
+      // stack with EitherTString
+      MonadTrans[EitherTString].liftM(incr).run(0) should equal((1, right(0)))
+
+      // stack with a List
+      MonadTrans[EitherTString].liftM(incr.replicateM(5)).run(0) should equal((5, right(List(0, 1, 2, 3, 4))))
+    }
+  }
 }

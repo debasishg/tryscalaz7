@@ -112,3 +112,4 @@ class EitherTStateSpec extends FunSpec with ShouldMatchers {
     }
   }
 }
+
